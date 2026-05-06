@@ -1,1 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitor Biomédico IoT</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
 
+<header>
+  <h1>Monitor Biomédico IoT</h1>
+</header>
+
+<main>
+
+  <section class="card">
+    <h2>Registro de Paciente</h2>
+    <input type="text" id="nombre" placeholder="Nombre">
+    <input type="number" id="edad" placeholder="Edad">
+    <select id="sexo">
+      <option value="M">Masculino</option>
+      <option value="F">Femenino</option>
+    </select>
+    <input type="text" id="obs" placeholder="Observaciones">
+    <button onclick="registrarPaciente()">Registrar</button>
+    <p id="registroResultado"></p>
+  </section>
+
+  <section class="card">
+    <h2>Paciente Activo</h2>
+    <input type="text" id="pacienteID" placeholder="ID Paciente (Ej. 001)">
+  </section>
+
+  <section class="card">
+    <h2>Monitoreo en Tiempo Real</h2>
+    <div class="metricas">
+      <p>BPM: <span id="bpm">--</span></p>
+      <p>SpO2: <span id="spo2">--</span></p>
+      <p>Temperatura: <span id="temp">--</span></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Generar Reporte</h2>
+    <input type="date" id="fechaInicio">
+    <input type="date" id="fechaFin">
+    <input type="time" id="horaInicio">
+    <input type="time" id="horaFin">
+    <button onclick="generarReporte()">Generar Reporte</button>
+    <p id="reporteResultado"></p>
+  </section>
+
+  <section class="card">
+    <h2>Tendencias</h2>
+    <canvas id="graficaSignos"></canvas>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
