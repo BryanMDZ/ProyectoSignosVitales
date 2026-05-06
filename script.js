@@ -16,10 +16,20 @@ async function registrarPaciente() {
 
 async function generarReporte() {
   const id = document.getElementById("pacienteID").value;
-  const ini = document.getElementById("fechaInicio").value;
-  const fin = document.getElementById("fechaFin").value;
-  const horaIni = document.getElementById("horaInicio").value + ":00";
-  const horaFin = document.getElementById("horaFin").value + ":59";
+  function formatearFecha(fechaInput) {
+  const fecha = new Date(fechaInput);
+
+  return fecha.getFullYear() + "-" +
+    String(fecha.getMonth() + 1).padStart(2, '0') + "-" +
+    String(fecha.getDate()).padStart(2, '0');
+  }
+  const horaIni = formatearHora(
+  document.getElementById("horaInicio").value
+  );
+  
+  const horaFin = formatearHora(
+    document.getElementById("horaFin").value
+  );
 
   const url = `${API_URL}?reporte=1&id=${id}&ini=${ini}&fin=${fin}&horaIni=${horaIni}&horaFin=${horaFin}`;
 
@@ -41,5 +51,11 @@ async function actualizarMonitoreo() {
     console.error("Error de monitoreo:", error);
   }
 }
+function formatearHora(horaInput) {
+  if (!horaInput) return "00:00:00";
 
+  const [horas, minutos] = horaInput.split(":");
+
+  return `${horas.padStart(2, '0')}:${minutos.padStart(2, '0')}:00`;
+}
 setInterval(actualizarMonitoreo, 3000);
