@@ -1,4 +1,4 @@
-const API_URL = "TU_URL_DE_APPS_SCRIPT";
+const API_URL = "https://script.google.com/macros/s/AKfycbzQel0BLDz4dgQS-xENEKc0FPHjmv3Sy7WFwx3N9prynagKcqKIQZ7k52XG3FmhAVRt/exec";
 
 async function registrarPaciente() {
   const nombre = document.getElementById("nombre").value;
@@ -31,7 +31,7 @@ async function generarReporte() {
 
 async function actualizarMonitoreo() {
   try {
-    const res = await fetch("http://IP_DEL_ESP32/json");
+    const res = await fetch("http://192.168.0.242/json");
     const data = await res.json();
 
     document.getElementById("bpm").innerText = data.bpm;
