@@ -1,5 +1,5 @@
 let reportePDFUrl = "";
-const API_URL = "https://script.google.com/macros/s/AKfycbxPnhVl4xyKOLIsaC9zcAn0h6ckGDlRZrv5UWoFZxsXVTUsvzpj6I1KKKgTk7z3ONRU/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx6NjipS-Gf_kIBcIAz3mQS74G9honlkQ2S9I2zlcAIukyuz3NQdD4e4CwaUK337VH8/exec";
 
 async function registrarPaciente() {
   const nombre = document.getElementById("nombre").value;
