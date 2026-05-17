@@ -14,6 +14,32 @@ async function registrarPaciente() {
   document.getElementById("registroResultado").innerText = texto;
 }
 
+async function cargarPacientes() {
+  try {
+    const res = await fetch(`${API_URL}?listarPacientes=1`);
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const pacientes = await res.json();
+
+    const select = document.getElementById("pacienteID");
+
+    select.innerHTML = '<option value="">Seleccione un paciente</option>';
+
+    pacientes.forEach(paciente => {
+      const option = document.createElement("option");
+      option.value = paciente.id;
+      option.textContent = `${paciente.id} - ${paciente.nombre}`;
+      select.appendChild(option);
+    });
+
+  } catch (error) {
+    console.error("Error cargando pacientes:", error);
+  }
+}
+
 async function generarReporte() {
   const id = document.getElementById("pacienteID").value.trim();
   const iniRaw = document.getElementById("fechaInicio").value;
@@ -87,4 +113,9 @@ function formatearHora(horaInput) {
 
   return `${horas.padStart(2, '0')}:${minutos.padStart(2, '0')}:00`;
 }
+window.onload = () => {
+  cargarPacientes();
+  actualizarMonitoreo();
+  setInterval(actualizarMonitoreo, 3000);
+};
 setInterval(actualizarMonitoreo, 3000);
