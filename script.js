@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwaitYou653R8BhCAgNV9Bej5jnxBQYyxxGokC3nodF8dtO4GZXYV8t4D6Ve6Pw0gPS/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzpq0rRk3n6uqO8Jt0LCTUrIx6eZDfshyWwJkLZpc8Sq9EDbfD3J5ld446liBtAtQLZ/exec";
 
 async function registrarPaciente() {
   const nombre = document.getElementById("nombre").value;
@@ -40,6 +40,27 @@ async function cargarPacientes() {
 
     document.getElementById("reporteResultado").innerText =
       "Error cargando lista de pacientes.";
+  }
+}
+
+async function cargarPacienteActivo() {
+  try {
+    const res = await fetch(`${API_URL}?pacienteActivo=1`);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const paciente = await res.json();
+
+    document.getElementById("MostrarPacienteID").innerText =
+      `${paciente.id} - ${paciente.nombre}`;
+
+  } catch (error) {
+    console.error("Error cargando paciente activo:", error);
+
+    document.getElementById("MostrarPacienteID").innerText =
+      "Paciente activo: Error";
   }
 }
 
@@ -118,7 +139,10 @@ function formatearHora(horaInput) {
 }
 window.onload = () => {
   cargarPacientes();
+  cargarPacienteActivo();
   actualizarMonitoreo();
+
   setInterval(actualizarMonitoreo, 3000);
+  setInterval(cargarPacienteActivo, 5000);
 };
 setInterval(actualizarMonitoreo, 3000);
