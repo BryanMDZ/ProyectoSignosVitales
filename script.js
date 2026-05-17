@@ -1,4 +1,5 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzpq0rRk3n6uqO8Jt0LCTUrIx6eZDfshyWwJkLZpc8Sq9EDbfD3J5ld446liBtAtQLZ/exec";
+let reportePDFUrl = "";
+const API_URL = "https://script.google.com/macros/s/AKfycbw2c843PJq5L0BcbJYBv-XEkoOE-VddINAa1EiTuw6JR7Cf3vnrzMw9iZqy-4m_DX8_/exec";
 
 async function registrarPaciente() {
   const nombre = document.getElementById("nombre").value;
@@ -72,6 +73,10 @@ async function generarReporte() {
   const horaFinRaw = document.getElementById("horaFin").value;
 
   const resultado = document.getElementById("reporteResultado");
+  const botonPDF = document.getElementById("btnDescargarPDF");
+
+  botonPDF.style.display = "none";
+  reportePDFUrl = "";
 
   if (!id || !iniRaw || !finRaw || !horaIniRaw || !horaFinRaw) {
     resultado.innerText = "Completa todos los campos para generar el reporte.";
@@ -82,14 +87,14 @@ async function generarReporte() {
     const fecha = new Date(fechaInput + "T00:00:00");
 
     return fecha.getFullYear() + "-" +
-      String(fecha.getMonth() + 1).padStart(2, '0') + "-" +
-      String(fecha.getDate()).padStart(2, '0');
+      String(fecha.getMonth() + 1).padStart(2, "0") + "-" +
+      String(fecha.getDate()).padStart(2, "0");
   }
 
   function formatearHora(horaInput) {
     const [horas, minutos] = horaInput.split(":");
 
-    return `${horas.padStart(2, '0')}:${minutos.padStart(2, '0')}:00`;
+    return `${horas.padStart(2, "0")}:${minutos.padStart(2, "0")}:00`;
   }
 
   const ini = formatearFecha(iniRaw);
@@ -97,7 +102,13 @@ async function generarReporte() {
   const horaIni = formatearHora(horaIniRaw);
   const horaFin = formatearHora(horaFinRaw);
 
-  const url = `${API_URL}?reporte=1&id=${encodeURIComponent(id)}&ini=${ini}&fin=${fin}&horaIni=${horaIni}&horaFin=${horaFin}`;
+  const url =
+    `${API_URL}?reporte=1` +
+    `&id=${encodeURIComponent(id)}` +
+    `&ini=${ini}` +
+    `&fin=${fin}` +
+    `&horaIni=${horaIni}` +
+    `&horaFin=${horaFin}`;
 
   resultado.innerText = "Generando reporte...";
 
@@ -108,9 +119,14 @@ async function generarReporte() {
       throw new Error(`HTTP ${res.status}`);
     }
 
-    const texto = await res.text();
+    const data = await res.json();
 
-    resultado.innerText = texto || "Reporte generado correctamente.";
+    resultado.innerText = data.mensaje;
+
+    if (data.ok && data.pdfUrl) {
+      reportePDFUrl = data.pdfUrl;
+      botonPDF.style.display = "block";
+    }
 
   } catch (error) {
     console.error("Error generando reporte:", error);
@@ -136,6 +152,15 @@ function formatearHora(horaInput) {
   const [horas, minutos] = horaInput.split(":");
 
   return `${horas.padStart(2, '0')}:${minutos.padStart(2, '0')}:00`;
+}
+
+function descargarPDF() {
+  if (!reportePDFUrl) {
+    alert("No hay reporte disponible para descargar.");
+    return;
+  }
+
+  window.open(reportePDFUrl, "_blank");
 }
 window.onload = () => {
   cargarPacientes();
