@@ -15,28 +15,57 @@ async function registrarPaciente() {
 }
 
 async function generarReporte() {
-  const id = document.getElementById("pacienteID").value;
-  function formatearFecha(fechaInput) {
-  const fecha = new Date(fechaInput);
+  const id = document.getElementById("pacienteID").value.trim();
+  const iniRaw = document.getElementById("fechaInicio").value;
+  const finRaw = document.getElementById("fechaFin").value;
+  const horaIniRaw = document.getElementById("horaInicio").value;
+  const horaFinRaw = document.getElementById("horaFin").value;
 
-  return fecha.getFullYear() + "-" +
-    String(fecha.getMonth() + 1).padStart(2, '0') + "-" +
-    String(fecha.getDate()).padStart(2, '0');
+  const resultado = document.getElementById("reporteResultado");
+
+  if (!id || !iniRaw || !finRaw || !horaIniRaw || !horaFinRaw) {
+    resultado.innerText = "Completa todos los campos para generar el reporte.";
+    return;
   }
-  const horaIni = formatearHora(
-  document.getElementById("horaInicio").value
-  );
-  
-  const horaFin = formatearHora(
-    document.getElementById("horaFin").value
-  );
 
-  const url = `${API_URL}?reporte=1&id=${id}&ini=${ini}&fin=${fin}&horaIni=${horaIni}&horaFin=${horaFin}`;
+  function formatearFecha(fechaInput) {
+    const fecha = new Date(fechaInput + "T00:00:00");
 
-  const res = await fetch(url);
-  const texto = await res.text();
+    return fecha.getFullYear() + "-" +
+      String(fecha.getMonth() + 1).padStart(2, '0') + "-" +
+      String(fecha.getDate()).padStart(2, '0');
+  }
 
-  document.getElementById("reporteResultado").innerText = texto;
+  function formatearHora(horaInput) {
+    const [horas, minutos] = horaInput.split(":");
+
+    return `${horas.padStart(2, '0')}:${minutos.padStart(2, '0')}:00`;
+  }
+
+  const ini = formatearFecha(iniRaw);
+  const fin = formatearFecha(finRaw);
+  const horaIni = formatearHora(horaIniRaw);
+  const horaFin = formatearHora(horaFinRaw);
+
+  const url = `${API_URL}?reporte=1&id=${encodeURIComponent(id)}&ini=${ini}&fin=${fin}&horaIni=${horaIni}&horaFin=${horaFin}`;
+
+  resultado.innerText = "Generando reporte...";
+
+  try {
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const texto = await res.text();
+
+    resultado.innerText = texto || "Reporte generado correctamente.";
+
+  } catch (error) {
+    console.error("Error generando reporte:", error);
+    resultado.innerText = `Error al generar reporte: ${error.message}`;
+  }
 }
 
 async function actualizarMonitoreo() {
