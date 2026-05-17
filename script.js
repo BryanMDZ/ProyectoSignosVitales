@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwayo2dCadZQoLEDbvPAuDtKTDrsldJDPWSBtH9w-VHaHTtcEpU-H4xgmuT_oKUYSOJ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx9M5Hp8X3TGRxvgNXR_GzBTjWqVI5xcUGRiehEHY4o1BgLoSXLV5iMkIeDXG4-lRcD/exec";
 
 async function registrarPaciente() {
   const nombre = document.getElementById("nombre").value;
