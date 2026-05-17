@@ -17,7 +17,7 @@ async function registrarPaciente() {
 async function cargarPacientes() {
   try {
     const res = await fetch(`${API_URL}?listarPacientes=1`);
-    
+
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);
     }
@@ -37,6 +37,9 @@ async function cargarPacientes() {
 
   } catch (error) {
     console.error("Error cargando pacientes:", error);
+
+    document.getElementById("reporteResultado").innerText =
+      "Error cargando lista de pacientes.";
   }
 }
 
