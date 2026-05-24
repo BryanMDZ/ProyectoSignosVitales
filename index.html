@@ -10,57 +10,85 @@
 <body>
 
 <header>
-  <h1>Monitor Biomédico IoT</h1>
+  <div class="header-inner">
+    <h1>Monitor Biomédico IoT</h1>
+    <div class="mobile-view-selector">
+      <details class="mobile-menu">
+        <summary>Selecciona una vista</summary>
+        <div class="mobile-menu-options">
+          <label for="view-monitor">Monitoreo</label>
+          <label for="view-paciente">Selección de paciente</label>
+          <label for="view-reporte">Hacer reporte</label>
+          <label for="view-tendencias">Tendencias</label>
+        </div>
+      </details>
+    </div>
+  </div>
 </header>
+
+<input type="radio" name="mobileView" id="view-monitor" checked hidden>
+<input type="radio" name="mobileView" id="view-paciente" hidden>
+<input type="radio" name="mobileView" id="view-reporte" hidden>
+<input type="radio" name="mobileView" id="view-tendencias" hidden>
 
 <main>
 
-  <section class="card">
+  <section class="card view-paciente">
     <h2>Registro de Paciente</h2>
-    <input type="text" id="nombre" placeholder="Nombre">
-    <input type="number" id="edad" placeholder="Edad">
-    <select id="sexo">
-      <option value="M">Masculino</option>
-      <option value="F">Femenino</option>
-    </select>
-    <input type="text" id="obs" placeholder="Observaciones">
-    <button onclick="registrarPaciente()">Registrar</button>
+    <div class="form-grid">
+      <input type="text" id="nombre" placeholder="Nombre">
+      <input type="number" id="edad" placeholder="Edad">
+      <select id="sexo">
+        <option value="M">Masculino</option>
+        <option value="F">Femenino</option>
+      </select>
+      <input type="text" id="obs" placeholder="Observaciones">
+    </div>
+    <div class="controls">
+      <button onclick="registrarPaciente()">Registrar</button>
+    </div>
     <p id="registroResultado"></p>
   </section>
 
-  <section class="card">
+  <section class="card view-monitor view-paciente">
     <h2>Paciente Activo</h2>
     <p id="MostrarPacienteID">Paciente activo: --</p>
   </section>
 
-  <section class="card">
+  <section class="card view-monitor">
     <h2>Monitoreo en Tiempo Real</h2>
     <div class="metricas">
-      <p>BPM: <span id="bpm">--</span></p>
-      <p>SpO2: <span id="spo2">--</span></p>
-      <p>Temperatura: <span id="temp">--</span></p>
+      <p><small>BPM</small><span id="bpm">--</span></p>
+      <p><small>SpO2</small><span id="spo2">--</span></p>
+      <p><small>Temperatura</small><span id="temp">--</span></p>
     </div>
   </section>
 
-  <section class="card">
+  <section class="card view-reporte">
     <h2>Generar Reporte</h2>
     <select id="pacienteID">
       <option value="">Seleccione un paciente</option>
     </select>
-    <input type="date" id="fechaInicio">
-    <input type="date" id="fechaFin">
-    <input type="time" id="horaInicio">
-    <input type="time" id="horaFin">
-    <button onclick="generarReporte()">Generar Reporte</button>
+    <div class="row">
+      <div class="field"><input type="date" id="fechaInicio" placeholder="Desde"></div>
+      <div class="field"><input type="date" id="fechaFin" placeholder="Hasta"></div>
+    </div>
+    <div class="row">
+      <div class="field"><input type="time" id="horaInicio"></div>
+      <div class="field"><input type="time" id="horaFin"></div>
+    </div>
+    <div class="controls">
+      <button onclick="generarReporte()">Generar Reporte</button>
+      <button id="btnDescargarPDF" class="secondary" onclick="descargarPDF()" style="display:none;">Descargar PDF</button>
+    </div>
     <p id="reporteResultado"></p>
-    <button id="btnDescargarPDF" onclick="descargarPDF()" style="display:none;">
-      Descargar reporte en PDF
-    </button>
   </section>
 
-  <section class="card">
+  <section class="card view-tendencias">
     <h2>Tendencias</h2>
-    <canvas id="graficaSignos"></canvas>
+    <div class="grafica-wrap">
+      <canvas id="graficaSignos"></canvas>
+    </div>
   </section>
 
 </main>
