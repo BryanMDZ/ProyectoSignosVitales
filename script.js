@@ -136,7 +136,7 @@ async function generarReporte() {
 
 async function actualizarMonitoreo() {
   try {
-    const url = API_URL+"?action=ultimo&id=001";
+    const url = `${API_URL}?action=ultimo&id=001`;
 
     const res = await fetch(url);
     const data = await res.json();
