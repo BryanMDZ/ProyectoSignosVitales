@@ -136,12 +136,15 @@ async function generarReporte() {
 
 async function actualizarMonitoreo() {
   try {
-    const res = await fetch("http://192.168.0.242/json");
+    const url = API_URL+"?action=ultimo&id=001";
+
+    const res = await fetch(url);
     const data = await res.json();
 
     document.getElementById("bpm").innerText = data.bpm;
     document.getElementById("spo2").innerText = data.spo2;
     document.getElementById("temp").innerText = data.temp;
+
   } catch (error) {
     console.error("Error de monitoreo:", error);
   }
