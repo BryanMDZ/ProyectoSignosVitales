@@ -1,5 +1,8 @@
 let reportePDFUrl = "";
-const API_URL = "https://script.google.com/macros/s/AKfycbx6NjipS-Gf_kIBcIAz3mQS74G9honlkQ2S9I2zlcAIukyuz3NQdD4e4CwaUK337VH8/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwshbRxp_dsrPkC5vfkz0vUzY8vHhdWvaULvKR3aqA-D4yZkai_GLN7KMxzaXaLD2cY/exec";
+let reportePDFUrl = "";
+
+let pacienteActivoID = "001";
 
 async function registrarPaciente() {
   const nombre = document.getElementById("nombre").value;
@@ -46,13 +49,19 @@ async function cargarPacientes() {
 
 async function cargarPacienteActivo() {
   try {
-    const res = await fetch(`${API_URL}?pacienteActivo=1`);
+    const res = await fetch(`${API_URL}?pacienteActivo=1&t=${Date.now()}`);
 
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);
     }
 
     const paciente = await res.json();
+
+    if (!paciente || !paciente.id) {
+      throw new Error("No se recibió un paciente activo válido");
+    }
+
+    pacienteActivoID = paciente.id;
 
     document.getElementById("MostrarPacienteID").innerText =
       `${paciente.id} - ${paciente.nombre}`;
@@ -136,17 +145,45 @@ async function generarReporte() {
 
 async function actualizarMonitoreo() {
   try {
-    const url = `${API_URL}?action=ultimo&id=001`;
+    const url =
+      `${API_URL}?accion=ultimo` +
+      `&id=${encodeURIComponent(pacienteActivoID)}` +
+      `&t=${Date.now()}`;
 
     const res = await fetch(url);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
     const data = await res.json();
 
-    document.getElementById("bpm").innerText = data.bpm;
-    document.getElementById("spo2").innerText = data.spo2;
-    document.getElementById("temp").innerText = data.temp;
+    console.log("Datos de monitoreo:", data);
+
+    if (!data.ok) {
+      console.warn(data.mensaje || "No se recibieron datos válidos");
+
+      document.getElementById("bpm").innerText = "--";
+      document.getElementById("spo2").innerText = "--";
+      document.getElementById("temp").innerText = "--";
+      return;
+    }
+
+    document.getElementById("bpm").innerText =
+      data.bpm > 0 ? data.bpm : "--";
+
+    document.getElementById("spo2").innerText =
+      data.spo2 > 0 ? `${data.spo2} %` : "--";
+
+    document.getElementById("temp").innerText =
+      data.temp > 0 ? `${Number(data.temp).toFixed(2)} °C` : "--";
 
   } catch (error) {
     console.error("Error de monitoreo:", error);
+
+    document.getElementById("bpm").innerText = "--";
+    document.getElementById("spo2").innerText = "--";
+    document.getElementById("temp").innerText = "--";
   }
 }
 function formatearHora(horaInput) {
@@ -165,12 +202,11 @@ function descargarPDF() {
 
   window.open(reportePDFUrl, "_blank");
 }
-window.onload = () => {
-  cargarPacientes();
-  cargarPacienteActivo();
-  actualizarMonitoreo();
+window.onload = async () => {
+  await cargarPacientes();
+  await cargarPacienteActivo();
+  await actualizarMonitoreo();
 
   setInterval(actualizarMonitoreo, 3000);
   setInterval(cargarPacienteActivo, 5000);
 };
-setInterval(actualizarMonitoreo, 3000);
