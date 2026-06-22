@@ -1,7 +1,7 @@
 let reportePDFUrl = "";
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbzN8z4b2Zepmt5q1Gv0vvvpn5dCstEASgMEyMVUDIc9zLql0poiFPm-n9N09E17_bwz/exec";
+  "https://script.google.com/macros/s/AKfycbx6u1m8-Y9JKfmrSL6ATDV6dIlMogACgHCzSS8_ZSCVNA9dBJ-c9Zt3vWvovu86LtAw/exec";
 
 let pacienteActivoID = "001";
 
@@ -538,7 +538,7 @@ async function actualizarMonitoreo() {
     }
 
     if (valorValido(data.temp)) {
-      setText("temp", Number(data.temp).toFixed(2));
+      setText("temp", Number(data.temp).toFixed(1));
       setText("estadoTemp", "Dato recibido");
     } else {
       setText("temp", "--");
