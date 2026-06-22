@@ -1,9 +1,9 @@
 let reportePDFUrl = "";
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbx6u1m8-Y9JKfmrSL6ATDV6dIlMogACgHCzSS8_ZSCVNA9dBJ-c9Zt3vWvovu86LtAw/exec";
+  "https://script.google.com/macros/s/AKfycbwUZzQly2sN8ZxD4rEOmRVMUnvnL6Ntoq4r4xH5kYAufeGhweA0l_UdmkkOzD2P1cOJ/exec";
 
-let pacienteActivoID = "001";
+let pacienteActivoID = "";
 
 // Buffer visual para la gráfica ECG local en SVG
 let ecgBuffer = [];
@@ -437,23 +437,43 @@ async function cargarPacientes() {
 
     const pacientes = await res.json();
 
-    const select = $("pacienteReporte");
+    const selectReporte = document.getElementById("pacienteReporte");
+    const selectActivo = document.getElementById("selectPacienteActivo");
 
-    if (!select) {
-      return;
+    if (selectReporte) {
+      selectReporte.innerHTML = '<option value="">Seleccionar paciente</option>';
     }
 
-    select.innerHTML = '<option value="">Seleccionar paciente</option>';
+    if (selectActivo) {
+      selectActivo.innerHTML = '<option value="">Seleccionar paciente activo</option>';
+    }
 
-    pacientes.forEach((paciente) => {
-      const option = document.createElement("option");
-      option.value = paciente.id;
-      option.textContent = `${paciente.id} - ${paciente.nombre}`;
-      select.appendChild(option);
+    pacientes.forEach(paciente => {
+      const texto = `${paciente.id} - ${paciente.nombre}`;
+
+      if (selectReporte) {
+        const optionReporte = document.createElement("option");
+        optionReporte.value = paciente.id;
+        optionReporte.textContent = texto;
+        selectReporte.appendChild(optionReporte);
+      }
+
+      if (selectActivo) {
+        const optionActivo = document.createElement("option");
+        optionActivo.value = paciente.id;
+        optionActivo.textContent = texto;
+        selectActivo.appendChild(optionActivo);
+      }
     });
+
   } catch (error) {
     console.error("Error cargando pacientes:", error);
-    setText("mensajeReporte", "Error cargando lista de pacientes.");
+
+    const selectActivo = document.getElementById("selectPacienteActivo");
+
+    if (selectActivo) {
+      selectActivo.innerHTML = '<option value="">Error cargando pacientes</option>';
+    }
   }
 }
 
@@ -471,19 +491,81 @@ async function cargarPacienteActivo() {
 
     const paciente = await res.json();
 
-    if (!paciente || !paciente.id) {
-      throw new Error("No se recibió un paciente activo válido");
+    const selectActivo = document.getElementById("selectPacienteActivo");
+
+    if (!paciente.ok || !paciente.id) {
+      pacienteActivoID = "";
+
+      setText("pacienteActivo", "Sin paciente activo");
+      setText("pacienteID", "---");
+      setText("estadoPacienteActivo", "Selecciona el paciente que está usando el dispositivo.");
+
+      if (selectActivo) {
+        selectActivo.value = "";
+      }
+
+      return;
     }
 
     pacienteActivoID = paciente.id;
 
     setText("pacienteActivo", paciente.nombre || "Paciente sin nombre");
     setText("pacienteID", paciente.id || "---");
+    setText("estadoPacienteActivo", "Los datos recibidos se guardarán con este paciente.");
+
+    if (selectActivo) {
+      selectActivo.value = paciente.id;
+    }
+
   } catch (error) {
     console.error("Error cargando paciente activo:", error);
 
+    pacienteActivoID = "";
+
     setText("pacienteActivo", "Sin paciente activo");
     setText("pacienteID", "---");
+    setText("estadoPacienteActivo", "No se pudo consultar el paciente activo.");
+  }
+}
+
+async function establecerPacienteActivo() {
+  const selectActivo = document.getElementById("selectPacienteActivo");
+
+  if (!selectActivo || !selectActivo.value) {
+    setText("estadoPacienteActivo", "Selecciona un paciente válido.");
+    return;
+  }
+
+  const id = selectActivo.value;
+
+  setText("estadoPacienteActivo", "Actualizando paciente activo...");
+
+  try {
+    const url =
+      `${API_URL}?setPacienteActivo=1` +
+      `&id=${encodeURIComponent(id)}` +
+      `&t=${Date.now()}`;
+
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const resultado = await res.json();
+
+    if (!resultado.ok) {
+      setText("estadoPacienteActivo", resultado.mensaje || "No se pudo actualizar el paciente activo.");
+      return;
+    }
+
+    pacienteActivoID = resultado.id;
+
+    await cargarPacienteActivo();
+
+  } catch (error) {
+    console.error("Error actualizando paciente activo:", error);
+    setText("estadoPacienteActivo", "Error al actualizar paciente activo.");
   }
 }
 
@@ -492,6 +574,16 @@ async function cargarPacienteActivo() {
 // ===============================
 
 async function actualizarMonitoreo() {
+  if (!pacienteActivoID) {
+    setText("bpm", "--");
+    setText("spo2", "--");
+    setText("temp", "--");
+    setText("estadoBPM", "Sin paciente activo");
+    setText("estadoSpO2", "Sin paciente activo");
+    setText("estadoTemp", "Sin paciente activo");
+    setText("estadoConexion", "Selecciona un paciente activo");
+    return;
+  }
   try {
     const url =
       `${API_URL}?accion=ultimo` +
