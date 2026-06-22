@@ -74,10 +74,34 @@
         </div>
 
         <div class="patient-summary card">
-          <div class="patient-info">
-            <span class="section-label">Paciente activo</span>
-            <h3 id="pacienteActivo">Sin paciente seleccionado</h3>
-            <p>ID: <span id="pacienteID">---</span></p>
+          <div class="card patient-card">
+            <h2 class="card-title">Paciente activo</h2>
+
+            <div class="form-group">
+              <label for="selectPacienteActivo"
+                >Paciente que usa el dispositivo</label
+              >
+              <select
+                id="selectPacienteActivo"
+                onchange="establecerPacienteActivo()"
+              >
+                <option value="">Cargando pacientes...</option>
+              </select>
+            </div>
+
+            <p>
+              <strong>Paciente actual:</strong>
+              <span id="pacienteActivo">Sin paciente activo</span>
+            </p>
+
+            <p>
+              <strong>ID:</strong>
+              <span id="pacienteID">---</span>
+            </p>
+
+            <p class="small-text" id="estadoPacienteActivo">
+              Selecciona el paciente antes de iniciar el monitoreo.
+            </p>
           </div>
 
           <div class="datetime-box">
