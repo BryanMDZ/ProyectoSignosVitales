@@ -1,99 +1,518 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitor Biomédico IoT</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitor Biomédico IoT</title>
 
-<header>
-  <div class="header-inner">
-    <h1>Monitor Biomédico IoT</h1>
-    <div class="mobile-view-selector">
-      <details class="mobile-menu">
-        <summary>Selecciona una vista</summary>
-        <div class="mobile-menu-options">
-          <label for="view-monitor">Monitoreo</label>
-          <label for="view-paciente">Selección de paciente</label>
-          <label for="view-reporte">Hacer reporte</label>
-          <label for="view-tendencias">Tendencias</label>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <!-- Navegación por CSS -->
+    <input type="radio" name="pantalla" id="pantallaMonitoreo" checked hidden />
+    <input type="radio" name="pantalla" id="pantallaRegistro" hidden />
+    <input type="radio" name="pantalla" id="pantallaReportes" hidden />
+    <input type="checkbox" id="menuToggle" hidden />
+
+    <!-- Barra superior -->
+    <header class="topbar">
+      <label for="menuToggle" class="hamburger" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </label>
+
+      <div class="topbar-title">
+        <h1>Monitor Biomédico IoT</h1>
+        <p>Supervisión remota de signos vitales</p>
+      </div>
+
+      <div class="cloud-status">
+        <span class="status-dot"></span>
+        <span id="estadoConexion">En línea</span>
+      </div>
+    </header>
+
+    <!-- Menú lateral -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Menú</h2>
+        <label for="menuToggle" class="close-menu">×</label>
+      </div>
+
+      <nav class="nav-menu">
+        <label for="pantallaMonitoreo" class="nav-item" onclick="cerrarMenu()">
+          <span class="nav-icon">⌁</span>
+          <span>Monitoreo</span>
+        </label>
+
+        <label for="pantallaRegistro" class="nav-item" onclick="cerrarMenu()">
+          <span class="nav-icon">＋</span>
+          <span>Registro de pacientes</span>
+        </label>
+
+        <label for="pantallaReportes" class="nav-item" onclick="cerrarMenu()">
+          <span class="nav-icon">▣</span>
+          <span>Generación de reportes</span>
+        </label>
+      </nav>
+    </aside>
+
+    <label for="menuToggle" class="overlay"></label>
+
+    <main class="app">
+      <!-- ========================= -->
+      <!-- PANTALLA 1: MONITOREO -->
+      <!-- ========================= -->
+      <section id="monitoreo" class="screen">
+        <div class="screen-header">
+          <div>
+            <h2>Monitoreo en tiempo real</h2>
+            <p>Visualización remota del paciente activo</p>
+          </div>
         </div>
-      </details>
-    </div>
-  </div>
-</header>
 
-<input type="radio" name="mobileView" id="view-monitor" checked hidden>
-<input type="radio" name="mobileView" id="view-paciente" hidden>
-<input type="radio" name="mobileView" id="view-reporte" hidden>
-<input type="radio" name="mobileView" id="view-tendencias" hidden>
+        <div class="patient-summary card">
+          <div class="patient-info">
+            <span class="section-label">Paciente activo</span>
+            <h3 id="pacienteActivo">Sin paciente seleccionado</h3>
+            <p>ID: <span id="pacienteID">---</span></p>
+          </div>
 
-<main>
+          <div class="datetime-box">
+            <span class="section-label">Fecha y hora</span>
+            <h3 id="fechaActual">--/--/----</h3>
+            <p id="horaActual">--:--:--</p>
+          </div>
+        </div>
 
-  <section class="card view-paciente">
-    <h2>Registro de Paciente</h2>
-    <div class="form-grid">
-      <input type="text" id="nombre" placeholder="Nombre">
-      <input type="number" id="edad" placeholder="Edad">
-      <select id="sexo">
-        <option value="M">Masculino</option>
-        <option value="F">Femenino</option>
-      </select>
-      <input type="text" id="obs" placeholder="Observaciones">
-    </div>
-    <div class="controls">
-      <button onclick="registrarPaciente()">Registrar</button>
-    </div>
-    <p id="registroResultado"></p>
-  </section>
+        <div class="vitals-grid">
+          <article class="vital-card heart">
+            <div class="vital-header">
+              <span>Frecuencia cardíaca</span>
+              <span class="vital-icon">♥</span>
+            </div>
+            <div class="vital-value">
+              <span id="bpm">--</span>
+              <small>LPM</small>
+            </div>
+            <p id="estadoBPM">Esperando datos</p>
+          </article>
 
-  <section class="card view-monitor view-paciente">
-    <h2>Paciente Activo</h2>
-    <p id="MostrarPacienteID">Paciente activo: --</p>
-  </section>
+          <article class="vital-card oxygen">
+            <div class="vital-header">
+              <span>Saturación de oxígeno</span>
+              <span class="vital-icon">O₂</span>
+            </div>
+            <div class="vital-value">
+              <span id="spo2">--</span>
+              <small>%</small>
+            </div>
+            <p id="estadoSpO2">Esperando datos</p>
+          </article>
 
-  <section class="card view-monitor">
-    <h2>Monitoreo en Tiempo Real</h2>
-    <div class="metricas">
-      <p><small>BPM</small><span id="bpm">--</span></p>
-      <p><small>SpO2</small><span id="spo2">--</span></p>
-      <p><small>Temperatura</small><span id="temp">--</span></p>
-    </div>
-  </section>
+          <article class="vital-card temperature">
+            <div class="vital-header">
+              <span>Temperatura corporal</span>
+              <span class="vital-icon">℃</span>
+            </div>
+            <div class="vital-value">
+              <span id="temp">--</span>
+              <small>°C</small>
+            </div>
+            <p id="estadoTemp">Esperando datos</p>
+          </article>
+        </div>
 
-  <section class="card view-reporte">
-    <h2>Generar Reporte</h2>
-    <select id="pacienteID">
-      <option value="">Seleccione un paciente</option>
-    </select>
-    <div class="row">
-      <div class="field"><input type="date" id="fechaInicio" placeholder="Desde"></div>
-      <div class="field"><input type="date" id="fechaFin" placeholder="Hasta"></div>
-    </div>
-    <div class="row">
-      <div class="field"><input type="time" id="horaInicio"></div>
-      <div class="field"><input type="time" id="horaFin"></div>
-    </div>
-    <div class="controls">
-      <button onclick="generarReporte()">Generar Reporte</button>
-      <button id="btnDescargarPDF" class="secondary" onclick="descargarPDF()" style="display:none;">Descargar PDF</button>
-    </div>
-    <p id="reporteResultado"></p>
-  </section>
+        <section class="card ecg-card">
+          <div class="card-title-row">
+            <div>
+              <span class="section-label">Señal ECG</span>
+              <h3>Electrocardiograma</h3>
+            </div>
+            <span class="ecg-status" id="estadoECG">Sin datos</span>
+          </div>
 
-  <section class="card view-tendencias">
-    <h2>Tendencias</h2>
-    <div class="grafica-wrap">
-      <canvas id="graficaSignos"></canvas>
-    </div>
-  </section>
+          <div class="ecg-graph" id="graficaECG">
+            <svg viewBox="0 0 1000 260" preserveAspectRatio="none">
+              <polyline
+                points="0,140 60,140 85,140 100,138 115,142 130,140 150,140 170,138 185,145 200,135 215,140 245,140 260,90 275,190 290,140 330,140 350,136 365,144 380,140 440,140 465,140 480,138 495,142 510,140 540,140 560,135 575,145 590,138 610,140 640,140 655,85 670,195 685,140 730,140 750,137 765,145 780,140 850,140 870,138 885,142 900,140 930,140 950,136 965,144 980,140 1000,140"
+              />
+            </svg>
+          </div>
+        </section>
+      </section>
 
-</main>
+      <!-- ========================= -->
+      <!-- PANTALLA 2: REGISTRO -->
+      <!-- ========================= -->
+      <section id="registro" class="screen">
+        <div class="screen-header">
+          <div>
+            <h2>Registro de pacientes</h2>
+            <p>Alta de paciente para monitoreo remoto</p>
+          </div>
+        </div>
 
-<script src="script.js"></script>
-</body>
+        <form class="card form-card" id="formRegistroPaciente">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nombre">Nombre completo</label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                placeholder="Nombre del paciente"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="edad">Edad</label>
+              <input type="number" id="edad" name="edad" placeholder="Años" />
+            </div>
+
+            <div class="form-group">
+              <label for="sexo">Sexo</label>
+              <select id="sexo" name="sexo">
+                <option value="">Seleccionar</option>
+                <option value="Femenino">Femenino</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Otro">Otro</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="peso">Peso</label>
+              <input type="number" id="peso" name="peso" placeholder="kg" />
+            </div>
+
+            <div class="form-group">
+              <label for="estatura">Estatura</label>
+              <input
+                type="number"
+                id="estatura"
+                name="estatura"
+                placeholder="cm"
+              />
+            </div>
+          </div>
+
+          <div class="check-section">
+            <span class="section-label">Antecedentes / factores de riesgo</span>
+
+            <div class="check-grid">
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="hipertenso"
+                  name="factores"
+                  value="Hipertensión"
+                />
+                <span>Hipertensión</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="diabetico"
+                  name="factores"
+                  value="Diabetes"
+                />
+                <span>Diabetes</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="obesidad"
+                  name="factores"
+                  value="Obesidad"
+                />
+                <span>Obesidad</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="tabaquismo"
+                  name="factores"
+                  value="Tabaquismo"
+                />
+                <span>Tabaquismo</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="epoc"
+                  name="factores"
+                  value="EPOC / enfermedad pulmonar crónica"
+                />
+                <span>EPOC / enfermedad pulmonar crónica</span>
+              </label>
+
+              <label class="check-card">
+                <input type="checkbox" id="asma" name="factores" value="Asma" />
+                <span>Asma</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="cardiopatia"
+                  name="factores"
+                  value="Enfermedad cardíaca"
+                />
+                <span>Enfermedad cardíaca</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="arritmias"
+                  name="factores"
+                  value="Arritmias"
+                />
+                <span>Arritmias</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="insuficienciaCardiaca"
+                  name="factores"
+                  value="Insuficiencia cardíaca"
+                />
+                <span>Insuficiencia cardíaca</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="apneaSueno"
+                  name="factores"
+                  value="Apnea del sueño"
+                />
+                <span>Apnea del sueño</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="anemia"
+                  name="factores"
+                  value="Anemia"
+                />
+                <span>Anemia</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="tiroides"
+                  name="factores"
+                  value="Enfermedad tiroidea"
+                />
+                <span>Enfermedad tiroidea</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="marcapasos"
+                  name="factores"
+                  value="Marcapasos"
+                />
+                <span>Marcapasos</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="oxigeno"
+                  name="factores"
+                  value="Uso de oxígeno suplementario"
+                />
+                <span>Oxígeno suplementario</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="medicamentosFC"
+                  name="factores"
+                  value="Medicamentos que modifican la frecuencia cardíaca"
+                />
+                <span>Medicamentos que modifican FC</span>
+              </label>
+
+              <label class="check-card">
+                <input
+                  type="checkbox"
+                  id="otras"
+                  name="factores"
+                  value="Otras"
+                />
+                <span>Otras</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="location-section">
+            <span class="section-label">Ubicación de monitoreo</span>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="ciudadBusqueda">Ciudad / localidad</label>
+                <input
+                  type="text"
+                  id="ciudadBusqueda"
+                  name="ciudadBusqueda"
+                  placeholder="Ej. Ciudad de México, Toluca, Puebla, Guadalajara"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>&nbsp;</label>
+                <button
+                  type="button"
+                  class="btn secondary"
+                  onclick="buscarCiudades()"
+                >
+                  Buscar ciudad
+                </button>
+              </div>
+
+              <div class="form-group full">
+                <label for="ciudad">Resultado de búsqueda</label>
+                <select
+                  id="ciudad"
+                  name="ciudad"
+                  disabled
+                  onchange="seleccionarCiudad()"
+                >
+                  <option value="">Busca una ciudad primero</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="altitud">Altitud aproximada</label>
+                <input
+                  type="text"
+                  id="altitud"
+                  name="altitud"
+                  placeholder="msnm"
+                  readonly
+                />
+              </div>
+
+              <input type="hidden" id="pais" name="pais" />
+              <input type="hidden" id="estado" name="estado" />
+              <input type="hidden" id="latitud" name="latitud" />
+              <input type="hidden" id="longitud" name="longitud" />
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label for="obs">Observaciones</label>
+            <textarea
+              id="obs"
+              name="obs"
+              rows="4"
+              placeholder="Observaciones clínicas o notas relevantes"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn secondary">Limpiar</button>
+            <button type="submit" class="btn primary">
+              Registrar paciente
+            </button>
+            <p id="registroResultado"></p>
+          </div>
+        </form>
+      </section>
+
+      <!-- ========================= -->
+      <!-- PANTALLA 3: REPORTES -->
+      <!-- ========================= -->
+      <section id="reportes" class="screen">
+        <div class="screen-header">
+          <div>
+            <h2>Generación de reportes</h2>
+            <p>Consulta histórica por paciente, fecha y hora</p>
+          </div>
+        </div>
+
+        <form class="card form-card" id="formReporte">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="pacienteReporte">Paciente</label>
+              <select id="pacienteReporte" name="pacienteReporte">
+                <option value="">Seleccionar paciente</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="fechaInicio">Fecha inicial</label>
+              <input type="date" id="fechaInicio" name="fechaInicio" />
+            </div>
+
+            <div class="form-group">
+              <label for="fechaFin">Fecha final</label>
+              <input type="date" id="fechaFin" name="fechaFin" />
+            </div>
+
+            <div class="form-group">
+              <label for="horaInicio">Hora inicial</label>
+              <input type="time" id="horaInicio" name="horaInicio" />
+            </div>
+
+            <div class="form-group">
+              <label for="horaFin">Hora final</label>
+              <input type="time" id="horaFin" name="horaFin" />
+            </div>
+          </div>
+
+          <div class="report-note">
+            <strong>Contenido del reporte:</strong>
+            <span
+              >promedios, máximos, mínimos, gráficas y datos filtrados del
+              paciente.</span
+            >
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn secondary">Cancelar</button>
+            <button type="submit" class="btn primary">
+              Generar reporte PDF
+            </button>
+          </div>
+        </form>
+
+        <div class="card report-result">
+          <span class="section-label">Estado del reporte</span>
+          <h3 id="estadoReporte">Sin reporte generado</h3>
+          <p id="mensajeReporte">
+            Selecciona un paciente y un intervalo de tiempo para generar el
+            documento.
+          </p>
+          <a href="#" id="linkReporte" class="btn outline">Descargar PDF</a>
+        </div>
+      </section>
+    </main>
+    <script>
+      function cerrarMenu() {
+        document.getElementById("menuToggle").checked = false;
+      }
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          cerrarMenu();
+        }
+      });
+    </script>
+    <script src="script.js"></script>
+  </body>
 </html>
