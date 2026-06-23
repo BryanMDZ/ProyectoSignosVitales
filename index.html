@@ -16,23 +16,27 @@
     <input type="checkbox" id="menuToggle" hidden />
 
     <!-- Barra superior -->
-    <header class="topbar">
-      <label for="menuToggle" class="hamburger" aria-label="Abrir menú">
-        <span></span>
-        <span></span>
-        <span></span>
-      </label>
+<header class="topbar">
+  <label for="menuToggle" class="menu-btn">☰</label>
 
-      <div class="topbar-title">
-        <h1>Monitor Biomédico IoT</h1>
-        <p>Supervisión remota de signos vitales</p>
+  <div class="topbar-title">BioMonitor</div>
+
+  <div class="topbar-status">
+    <span class="connection-pill" id="estadoConexion">En línea</span>
+
+    <div class="battery-topbar" id="batteryWidget">
+      <div class="battery-icon-small">
+        <div class="battery-level-small" id="batteryLevel"></div>
       </div>
 
-      <div class="cloud-status">
-        <span class="status-dot"></span>
-        <span id="estadoConexion">En línea</span>
-      </div>
-    </header>
+      <span class="battery-text">
+        <span id="bateria">--</span>%
+      </span>
+
+      <span class="battery-voltage-small" id="voltajeBat">-- V</span>
+    </div>
+  </div>
+</header>
 
     <!-- Menú lateral -->
     <aside class="sidebar">
@@ -66,20 +70,14 @@
       <!-- PANTALLA 1: MONITOREO -->
       <!-- ========================= -->
       <section id="monitoreo" class="screen">
+
         <div class="screen-header">
           <div>
             <h2>Monitoreo en tiempo real</h2>
             <p>Visualización remota del paciente activo</p>
           </div>
         </div>
-        
-        <div class="vital-card">
-          <span class="vital-label">Batería</span>
-          <span class="vital-value" id="bateria">--</span>
-          <span class="vital-unit">%</span>
-          <small id="voltajeBat">-- V</small>
-        </div>
-        
+
         <div class="patient-summary card">
           <div class="card patient-card">
             <h2 class="card-title">Paciente activo</h2>
