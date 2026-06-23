@@ -644,7 +644,13 @@ async function actualizarMonitoreo() {
       setText("estadoECG", "ECG no disponible en nube");
       actualizarGraficaECG(null);
     }
-
+    if (valorValido(data.bat)) {
+      setText("bateria", data.bat);
+      setText("voltajeBat", valorValido(data.vbat) ? `${Number(data.vbat).toFixed(2)} V` : "-- V");
+    } else {
+      setText("bateria", "--");
+      setText("voltajeBat", "-- V");
+    }
     setText("estadoConexion", "En línea");
   } catch (error) {
     console.error("Error de monitoreo:", error);
