@@ -130,18 +130,19 @@ async function registrarPaciente(event) {
   // ===============================
 
   const factoresSeleccionados = document.querySelectorAll(
-    'input[name="factores"]:checked'
+    'input[name="factores"]:checked',
   );
 
   const factores = Array.from(factoresSeleccionados)
-    .map(input => input.value)
+    .map((input) => input.value)
     .join(", ");
 
   // ===============================
   // UBICACIÓN
   // ===============================
 
-  const ciudadBusqueda = document.getElementById("ciudadBusqueda")?.value.trim() || "";
+  const ciudadBusqueda =
+    document.getElementById("ciudadBusqueda")?.value.trim() || "";
   const ciudadSelect = document.getElementById("ciudad");
   const indiceCiudad = ciudadSelect?.value || "";
 
@@ -233,7 +234,8 @@ async function registrarPaciente(event) {
 
     const ciudadResultado = document.getElementById("ciudad");
     if (ciudadResultado) {
-      ciudadResultado.innerHTML = '<option value="">Busca una ciudad primero</option>';
+      ciudadResultado.innerHTML =
+        '<option value="">Busca una ciudad primero</option>';
       ciudadResultado.disabled = true;
     }
 
@@ -249,7 +251,6 @@ async function registrarPaciente(event) {
     if (typeof cargarPacientes === "function") {
       await cargarPacientes();
     }
-
   } catch (error) {
     console.error("Error registrando paciente:", error);
 
@@ -341,12 +342,10 @@ async function buscarCiudades() {
     });
 
     selectCiudad.disabled = false;
-
   } catch (error) {
     console.error("Error buscando ciudad:", error);
 
-    selectCiudad.innerHTML =
-      '<option value="">Error al buscar ciudad</option>';
+    selectCiudad.innerHTML = '<option value="">Error al buscar ciudad</option>';
   }
 }
 
@@ -416,7 +415,6 @@ async function obtenerAltitud(latitud, longitud) {
     } else {
       altitudInput.value = "No disponible";
     }
-
   } catch (error) {
     console.error("Error obteniendo altitud:", error);
     altitudInput.value = "No disponible";
@@ -441,14 +439,16 @@ async function cargarPacientes() {
     const selectActivo = document.getElementById("selectPacienteActivo");
 
     if (selectReporte) {
-      selectReporte.innerHTML = '<option value="">Seleccionar paciente</option>';
+      selectReporte.innerHTML =
+        '<option value="">Seleccionar paciente</option>';
     }
 
     if (selectActivo) {
-      selectActivo.innerHTML = '<option value="">Seleccionar paciente activo</option>';
+      selectActivo.innerHTML =
+        '<option value="">Seleccionar paciente activo</option>';
     }
 
-    pacientes.forEach(paciente => {
+    pacientes.forEach((paciente) => {
       const texto = `${paciente.id} - ${paciente.nombre}`;
 
       if (selectReporte) {
@@ -465,14 +465,14 @@ async function cargarPacientes() {
         selectActivo.appendChild(optionActivo);
       }
     });
-
   } catch (error) {
     console.error("Error cargando pacientes:", error);
 
     const selectActivo = document.getElementById("selectPacienteActivo");
 
     if (selectActivo) {
-      selectActivo.innerHTML = '<option value="">Error cargando pacientes</option>';
+      selectActivo.innerHTML =
+        '<option value="">Error cargando pacientes</option>';
     }
   }
 }
@@ -498,7 +498,10 @@ async function cargarPacienteActivo() {
 
       setText("pacienteActivo", "Sin paciente activo");
       setText("pacienteID", "---");
-      setText("estadoPacienteActivo", "Selecciona el paciente que está usando el dispositivo.");
+      setText(
+        "estadoPacienteActivo",
+        "Selecciona el paciente que está usando el dispositivo.",
+      );
 
       if (selectActivo) {
         selectActivo.value = "";
@@ -511,12 +514,14 @@ async function cargarPacienteActivo() {
 
     setText("pacienteActivo", paciente.nombre || "Paciente sin nombre");
     setText("pacienteID", paciente.id || "---");
-    setText("estadoPacienteActivo", "Los datos recibidos se guardarán con este paciente.");
+    setText(
+      "estadoPacienteActivo",
+      "Los datos recibidos se guardarán con este paciente.",
+    );
 
     if (selectActivo) {
       selectActivo.value = paciente.id;
     }
-
   } catch (error) {
     console.error("Error cargando paciente activo:", error);
 
@@ -555,14 +560,16 @@ async function establecerPacienteActivo() {
     const resultado = await res.json();
 
     if (!resultado.ok) {
-      setText("estadoPacienteActivo", resultado.mensaje || "No se pudo actualizar el paciente activo.");
+      setText(
+        "estadoPacienteActivo",
+        resultado.mensaje || "No se pudo actualizar el paciente activo.",
+      );
       return;
     }
 
     pacienteActivoID = resultado.id;
 
     await cargarPacienteActivo();
-
   } catch (error) {
     console.error("Error actualizando paciente activo:", error);
     setText("estadoPacienteActivo", "Error al actualizar paciente activo.");
@@ -645,13 +652,47 @@ async function actualizarMonitoreo() {
       actualizarGraficaECG(null);
     }
     if (valorValido(data.bat)) {
-      setText("bateria", data.bat);
-      setText("voltajeBat", valorValido(data.vbat) ? `${Number(data.vbat).toFixed(2)} V` : "-- V");
+      const porcentaje = Number(data.bat);
+      const voltaje = valorValido(data.vbat)
+        ? Number(data.vbat).toFixed(2)
+        : "--";
+
+      setText("bateria", porcentaje);
+      setText("voltajeBat", `${voltaje} V`);
+
+      const batteryLevel = document.getElementById("batteryLevel");
+      const batteryWidget = document.getElementById("batteryWidget");
+
+      if (batteryLevel) {
+        batteryLevel.style.width = `${Math.max(0, Math.min(100, porcentaje))}%`;
+      }
+
+      if (batteryWidget) {
+        batteryWidget.classList.remove("battery-low", "battery-critical");
+
+        if (porcentaje <= 10) {
+          batteryWidget.classList.add("battery-critical");
+        } else if (porcentaje <= 20) {
+          batteryWidget.classList.add("battery-low");
+        }
+      }
     } else {
       setText("bateria", "--");
       setText("voltajeBat", "-- V");
+
+      const batteryLevel = document.getElementById("batteryLevel");
+      const batteryWidget = document.getElementById("batteryWidget");
+
+      if (batteryLevel) {
+        batteryLevel.style.width = "0%";
+      }
+
+      if (batteryWidget) {
+        batteryWidget.classList.remove("battery-low", "battery-critical");
+      }
     }
-    setText("estadoConexion", "En línea");
+
+    setEstadoConexion("En línea", true);
   } catch (error) {
     console.error("Error de monitoreo:", error);
 
@@ -662,10 +703,23 @@ async function actualizarMonitoreo() {
     setText("estadoBPM", "Error de lectura");
     setText("estadoSpO2", "Error de lectura");
     setText("estadoTemp", "Error de lectura");
-    setText("estadoConexion", "Sin conexión");
+    setEstadoConexion("Sin conexión", false);
   }
 }
+function setEstadoConexion(texto, online) {
+  const elemento = document.getElementById("estadoConexion");
 
+  if (!elemento) return;
+
+  elemento.textContent = texto;
+  elemento.classList.remove("online", "offline");
+
+  if (online) {
+    elemento.classList.add("online");
+  } else {
+    elemento.classList.add("offline");
+  }
+}
 // ===============================
 // GRÁFICA ECG VISUAL
 // ===============================
