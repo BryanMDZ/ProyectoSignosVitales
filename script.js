@@ -889,7 +889,7 @@ function inicializarEventos() {
 
   // Inicializa la línea ECG centrada
   ecgBuffer = Array(ECG_BUFFER_SIZE).fill(140);
-  actualizarGraficaECG(null);
+  actualizarGraficaECGBuffer("");
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
