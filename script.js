@@ -1,7 +1,7 @@
 let reportePDFUrl = "";
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbw8Yy0aZXVRn9uiZ5IBZzFVD7efc3e6ZX1gjz9zSb441XmMgx75LgS_tydWtYSAFa1J/exec";
+  "https://script.google.com/macros/s/AKfycbyNDQLXKFF19UAic5sVwaEfQGJPYST615V0ih6c04T8Jkr2XaJiRHWLx413qr5olqse/exec";
 
 let pacienteActivoID = "";
 
@@ -646,10 +646,10 @@ async function actualizarMonitoreo() {
 
     if (data.ecg !== undefined && data.ecg !== null && data.ecg !== "") {
       setText("estadoECG", "Señal recibida");
-      actualizarGraficaECG(Number(data.ecg));
+      actualizarGraficaECGBuffer(data.ecg);
     } else {
       setText("estadoECG", "ECG no disponible en nube");
-      actualizarGraficaECG(null);
+      actualizarGraficaECGBuffer("");
     }
     if (valorValido(data.bat)) {
       const porcentaje = Number(data.bat);
@@ -724,39 +724,50 @@ function setEstadoConexion(texto, online) {
 // GRÁFICA ECG VISUAL
 // ===============================
 
-function actualizarGraficaECG(valorADC) {
+function actualizarGraficaECGBuffer(ecgTexto) {
   const polyline = document.querySelector("#graficaECG svg polyline");
 
   if (!polyline) {
     return;
   }
 
-  let y;
-
-  if (valorADC === null || isNaN(valorADC)) {
-    y = 140;
-  } else {
-    // ADC 12 bits: 0 a 4095.
-    // Se comprime visualmente para quedar dentro de la gráfica.
-    y = 220 - (valorADC / 4095) * 180;
-
-    if (y < 30) y = 30;
-    if (y > 230) y = 230;
+  if (!ecgTexto) {
+    const lineaBase = "0,140 1000,140";
+    polyline.setAttribute("points", lineaBase);
+    return;
   }
 
-  ecgBuffer.push(y);
+  const muestras = String(ecgTexto)
+    .split(",")
+    .map(valor => Number(valor))
+    .filter(valor => !isNaN(valor));
 
-  if (ecgBuffer.length > ECG_BUFFER_SIZE) {
-    ecgBuffer.shift();
+  if (muestras.length < 2) {
+    polyline.setAttribute("points", "0,140 1000,140");
+    return;
   }
+
+  const maxAbs = Math.max(
+    ...muestras.map(valor => Math.abs(valor))
+  ) || 1;
 
   const ancho = 1000;
-  const paso = ancho / (ECG_BUFFER_SIZE - 1);
+  const alto = 260;
+  const centroY = alto / 2;
+  const margen = 20;
+  const escalaY = (centroY - margen) / maxAbs;
 
-  const puntos = ecgBuffer
-    .map((valorY, index) => {
-      const x = Math.round(index * paso);
-      return `${x},${Math.round(valorY)}`;
+  const pasoX = ancho / (muestras.length - 1);
+
+  const puntos = muestras
+    .map((valor, index) => {
+      const x = Math.round(index * pasoX);
+      let y = centroY - valor * escalaY;
+
+      if (y < margen) y = margen;
+      if (y > alto - margen) y = alto - margen;
+
+      return `${x},${Math.round(y)}`;
     })
     .join(" ");
 
