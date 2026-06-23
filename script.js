@@ -1,7 +1,7 @@
 let reportePDFUrl = "";
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbwUZzQly2sN8ZxD4rEOmRVMUnvnL6Ntoq4r4xH5kYAufeGhweA0l_UdmkkOzD2P1cOJ/exec";
+  "https://script.google.com/macros/s/AKfycbxWLFcH1u6_CQiqoOODfFs56t4u7Jf1FKORxBHqSBa7lmivUN0CKRJpZzluDWVE6KMO/exec";
 
 let pacienteActivoID = "";
 
