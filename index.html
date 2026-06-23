@@ -16,25 +16,27 @@
     <input type="checkbox" id="menuToggle" hidden />
 
     <!-- Barra superior -->
-    <header class="topbar">
-      <label for="menuToggle" class="menu-btn">☰</label>
+<header class="topbar">
+  <label for="menuToggle" class="menu-btn">☰</label>
 
-      <div class="topbar-title">BioMonitor</div>
+  <div class="topbar-title">BioMonitor</div>
 
-      <div class="topbar-status">
-        <span class="connection-pill" id="estadoConexion">En línea</span>
+  <div class="topbar-status">
+    <span class="connection-pill" id="estadoConexion">En línea</span>
 
-        <div class="battery-topbar" id="batteryWidget">
-          <div class="battery-icon-small">
-            <div class="battery-level-small" id="batteryLevel"></div>
-          </div>
-
-          <span class="battery-text"> <span id="bateria">--</span>% </span>
-
-          <span class="battery-voltage-small" id="voltajeBat">-- V</span>
-        </div>
+    <div class="battery-topbar" id="batteryWidget">
+      <div class="battery-icon-small">
+        <div class="battery-level-small" id="batteryLevel"></div>
       </div>
-    </header>
+
+      <span class="battery-text">
+        <span id="bateria">--</span>%
+      </span>
+
+      <span class="battery-voltage-small" id="voltajeBat">-- V</span>
+    </div>
+  </div>
+</header>
 
     <!-- Menú lateral -->
     <aside class="sidebar">
@@ -68,6 +70,7 @@
       <!-- PANTALLA 1: MONITOREO -->
       <!-- ========================= -->
       <section id="monitoreo" class="screen">
+
         <div class="screen-header">
           <div>
             <h2>Monitoreo en tiempo real</h2>
@@ -168,62 +171,6 @@
             </svg>
           </div>
         </section>
-
-        <div class="ecg-graph" id="graficaECG">
-          <svg viewBox="0 0 1000 260" preserveAspectRatio="none">
-            <defs>
-              <pattern
-                id="smallGrid"
-                width="20"
-                height="20"
-                patternUnits="userSpaceOnUse"
-              >
-                <path
-                  d="M 20 0 L 0 0 0 20"
-                  fill="none"
-                  stroke="#d9e2ec"
-                  stroke-width="0.8"
-                />
-              </pattern>
-
-              <pattern
-                id="largeGrid"
-                width="100"
-                height="100"
-                patternUnits="userSpaceOnUse"
-              >
-                <rect width="100" height="100" fill="url(#smallGrid)" />
-                <path
-                  d="M 100 0 L 0 0 0 100"
-                  fill="none"
-                  stroke="#b7ccd9"
-                  stroke-width="1.2"
-                />
-              </pattern>
-            </defs>
-
-            <rect width="1000" height="260" fill="url(#largeGrid)" />
-
-            <line
-              x1="0"
-              y1="130"
-              x2="1000"
-              y2="130"
-              stroke="#8aa6b8"
-              stroke-width="1"
-              stroke-dasharray="6 6"
-            />
-
-            <polyline
-              points="0,130 1000,130"
-              fill="none"
-              stroke="#0f4c75"
-              stroke-width="2"
-              stroke-linejoin="round"
-              stroke-linecap="round"
-            />
-          </svg>
-        </div>
       </section>
 
       <!-- ========================= -->
