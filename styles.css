@@ -30,70 +30,156 @@ body {
 /* ========================= */
 
 .topbar {
-  height: 76px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: white;
+  height: 60px;
+  background: #0f4c75;
+  color: #ffffff;
   display: flex;
   align-items: center;
-  padding: 0 24px;
-  gap: 18px;
+  padding: 0 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   position: sticky;
   top: 0;
-  z-index: 20;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  z-index: 10;
 }
 
-.hamburger {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: grid;
-  place-content: center;
-  gap: 5px;
+.menu-btn {
+  font-size: 28px;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.hamburger span {
-  width: 22px;
-  height: 2px;
-  background: white;
-  border-radius: 999px;
-  display: block;
+  margin-right: 16px;
+  user-select: none;
 }
 
 .topbar-title {
-  flex: 1;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
 }
 
-.topbar-title h1 {
-  margin: 0;
-  font-size: 22px;
-  letter-spacing: 0.3px;
+.topbar-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.topbar-title p {
-  margin: 4px 0 0;
+.connection-pill {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 7px 12px;
   font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.battery-topbar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+
+  padding: 7px 11px;
+  color: #ffffff;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.battery-icon-small {
+  position: relative;
+  width: 28px;
+  height: 14px;
+  border: 2px solid #ffffff;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.battery-icon-small::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: -6px;
+  width: 4px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 0 2px 2px 0;
+}
+
+.battery-level-small {
+  height: 100%;
+  width: 0%;
+  background: #ffffff;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.battery-text {
+  font-size: 13px;
+}
+
+.battery-voltage-small {
+  font-size: 11px;
   opacity: 0.85;
 }
 
-.cloud-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.14);
-  padding: 10px 14px;
-  border-radius: 999px;
-  font-size: 14px;
+/* Estados de batería */
+.battery-topbar.battery-low .battery-level-small {
+  background: #f4a261;
 }
 
-.status-dot {
-  width: 10px;
-  height: 10px;
-  background: #45ffb1;
-  border-radius: 50%;
-  box-shadow: 0 0 0 5px rgba(69, 255, 177, 0.18);
+.battery-topbar.battery-critical .battery-level-small {
+  background: #d9534f;
+}
+
+.battery-topbar.battery-low {
+  border-color: rgba(244, 162, 97, 0.8);
+}
+
+.battery-topbar.battery-critical {
+  border-color: rgba(217, 83, 79, 0.9);
+}
+
+/* Estado de conexión */
+.connection-pill.offline {
+  background: rgba(217, 83, 79, 0.24);
+  border-color: rgba(217, 83, 79, 0.6);
+}
+
+.connection-pill.online {
+  background: rgba(46, 139, 87, 0.24);
+  border-color: rgba(46, 139, 87, 0.65);
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .topbar {
+    padding: 0 12px;
+  }
+
+  .topbar-title {
+    font-size: 15px;
+  }
+
+  .topbar-status {
+    gap: 6px;
+  }
+
+  .connection-pill {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .battery-topbar {
+    padding: 6px 8px;
+    gap: 5px;
+  }
+
+  .battery-voltage-small {
+    display: none;
+  }
 }
 
 /* ========================= */
@@ -239,7 +325,34 @@ body {
 /* ========================= */
 /* MONITOREO */
 /* ========================= */
+.screen-monitoring {
+  position: relative;
+}
 
+/* Estados visuales */
+.battery-widget.battery-low .battery-level {
+  background: #f4a261;
+}
+
+.battery-widget.battery-critical .battery-level {
+  background: #d9534f;
+}
+
+.battery-widget.battery-critical {
+  border-color: rgba(217, 83, 79, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .screen-monitoring {
+    padding-top: 78px;
+  }
+
+  .battery-widget {
+    top: 14px;
+    right: 14px;
+  }
+}
 .patient-summary {
   display: grid;
   grid-template-columns: 1fr auto;
