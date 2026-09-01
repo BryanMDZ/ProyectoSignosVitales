@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BioMonitor Local</title>
+
+  <style>
+    :root {
+      --primary: #0f4c75;
+      --primary-dark: #0b354f;
+      --accent: #00a6a6;
+      --bg: #f4f8fb;
+      --card: #ffffff;
+      --soft: #eef6f9;
+      --border: #d9e2ec;
+      --text: #17212b;
+      --muted: #6b7c8f;
+      --danger: #d9534f;
+      --ok: #2e8b57;
+      --warn: #f4a261;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .topbar {
+      height: 60px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .menu-btn {
+      font-size: 28px;
+      cursor: pointer;
+      margin-right: 16px;
+      user-select: none;
+    }
+
+    .topbar-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 0.4px;
+    }
+
+    #menuToggle {
+      display: none;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 260px;
+      height: 100vh;
+      background: white;
+      box-shadow: 2px 0 14px rgba(0,0,0,0.18);
+      z-index: 20;
+      transition: left 0.25s ease;
+      padding-top: 70px;
+    }
+
+    #menuToggle:checked ~ .sidebar {
+      left: 0;
+    }
+
+    .sidebar-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 60px;
+      width: 100%;
+      background: var(--primary-dark);
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      font-weight: bold;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 15px 20px;
+      color: var(--text);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      font-weight: bold;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: var(--soft);
+      color: var(--primary);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 15;
+    }
+
+    #menuToggle:checked ~ .overlay {
+      display: block;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 22px auto;
+      padding: 0 16px 30px;
+    }
+
+    .page-title {
+      margin-bottom: 18px;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      color: var(--primary);
+      font-size: 26px;
+    }
+
+    .page-title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .card-title {
+      margin: 0 0 14px;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .check-card {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .check-card input {
+      transform: scale(1.15);
+    }
+
+    .check-card input:disabled + span {
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button,
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: var(--primary);
+      color: white;
+      transition: 0.2s;
+    }
+
+    button:hover,
+    .btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--accent);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+    }
+
+    .btn-light {
+      background: var(--soft);
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+
+    .monitor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 14px;
+    }
+
+    .value-card {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .value {
+      margin-top: 10px;
+      font-size: 34px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .unit {
+      font-size: 15px;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .chip-ok {
+      background: rgba(46,139,87,0.14);
+      color: var(--ok);
+    }
+
+    .chip-bad {
+      background: rgba(217,83,79,0.14);
+      color: var(--danger);
+    }
+
+    .chip-warn {
+      background: rgba(244,162,97,0.18);
+      color: #b06421;
+    }
+
+    .info-list {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .info-label {
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .info-value {
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    @media (max-width: 850px) {
+      .span-4,
+      .span-6,
+      .span-8,
+      .span-12 {
+        grid-column: span 12;
+      }
+
+      .info-list {
+        grid-template-columns: 1fr;
+      }
+
+      .value {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <input type="checkbox" id="menuToggle">
+
+  <header class="topbar">
+    <label for="menuToggle" class="menu-btn">☰</label>
+    <div class="topbar-title">BioMonitor Local</div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">Menú local</div>
+    <a class="nav-item active" href="/monitor" onclick="cerrarMenu()">Monitoreo</a>
+    <a class="nav-item" href="/wifi" onclick="cerrarMenu()">Credenciales WiFi</a>
+  </aside>
+
+  <label for="menuToggle" class="overlay"></label>
+
+  <main>
+    <section class="page-title">
+      <h1>Monitoreo local</h1>
+      <p>Visualización sin conexión y control de variables activas.</p>
+    </section>
+
+    <div class="grid">
+
+      <section class="card span-6">
+        <h2 class="card-title">Selección de variables</h2>
+
+        <div class="check-grid">
+          <label class="check-card">
+            <input type="checkbox" id="bpm">
+            <span>LPM</span>
+          </label>
+
+          <label class="check-card">
+            <input type="checkbox" id="spo2">
+            <span>SpO2</span>
+          </label>
+
+          <label class="check-card">
+            <input type="checkbox" id="temp">
+            <span>Temperatura</span>
+          </label>
+
+          <label class="check-card">
+            <input type="checkbox" id="ecg">
+            <span>ECG</span>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button class="btn-secondary" onclick="comenzarMonitoreo()">Comenzar monitoreo</button>
+          <button class="btn-danger" onclick="detenerMonitoreo()">Detener</button>
+          <button class="btn-light" onclick="guardarSeleccion()">Actualizar selección</button>
+        </div>
+
+        <br>
+        <div class="status-row">
+          <strong>Estado del monitoreo</strong>
+          <span id="estadoMonitoreo" class="chip chip-warn">--</span>
+        </div>
+      </section>
+
+      <section class="card span-6">
+        <h2 class="card-title">Estado de conectividad</h2>
+
+        <div class="info-list">
+          <div class="info-label">Batería</div>
+            <div class="info-value">
+              <span id="porcentajeBateria">--</span> %
+              (<span id="voltajeBateria">--</span> V)
+            </div>
+          <div class="info-label">Modo</div>
+          <div class="info-value" id="modoConexion">--</div>
+
+          <div class="info-label">Red actual</div>
+          <div class="info-value" id="ssidActual">--</div>
+
+          <div class="info-label">Dirección IP</div>
+          <div class="info-value" id="ipLocal">--</div>
+
+          <div class="info-label">mDNS</div>
+          <div class="info-value" id="mdnsLocal">--</div>
+
+          <div class="info-label">WiFi</div>
+          <div class="info-value" id="estadoWiFi">--</div>
+
+          <div class="info-label">Internet / nube</div>
+          <div class="info-value" id="estadoInternet">--</div>
+        </div>
+      </section>
+
+      <section class="card span-12">
+        <h2 class="card-title">Monitoreo</h2>
+
+        <div class="monitor-grid">
+          <div class="value-card">
+            <div class="label">Frecuencia cardíaca</div>
+            <div class="value"><span id="valorBPM">--</span><span class="unit">LPM</span></div>
+          </div>
+
+          <div class="value-card">
+            <div class="label">Saturación de oxígeno</div>
+            <div class="value"><span id="valorSpO2">--</span><span class="unit">%</span></div>
+          </div>
+
+          <div class="value-card">
+            <div class="label">Temperatura</div>
+            <div class="value"><span id="valorTemp">--</span><span class="unit">°C</span></div>
+          </div>
+
+          <div class="value-card">
+            <div class="label">ECG</div>
+            <div class="value"><span id="valorECG">--</span><span class="unit">ADC</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-12">
+        <h2 class="card-title">Estado físico de sensores</h2>
+
+        <div class="status-grid">
+          <div class="status-row">
+            <strong>MAX30102</strong>
+            <span id="estadoMAX" class="chip chip-warn">--</span>
+          </div>
+
+          <div class="status-row">
+            <strong>Presencia de dedo</strong>
+            <span id="estadoDedo" class="chip chip-warn">--</span>
+          </div>
+
+          <div class="status-row">
+            <strong>TMP117</strong>
+            <span id="estadoTMP" class="chip chip-warn">--</span>
+          </div>
+
+          <div class="status-row">
+            <strong>Electrodos ECG</strong>
+            <span id="estadoElectrodos" class="chip chip-warn">--</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    function cerrarMenu() {
+      const menu = document.getElementById('menuToggle');
+      if (menu) menu.checked = false;
+    }
+
+    function setTexto(id, texto) {
+      const elemento = document.getElementById(id);
+      if (elemento) elemento.textContent = texto;
+    }
+
+    function setChecked(id, valor) {
+      const elemento = document.getElementById(id);
+      if (elemento) elemento.checked = valor;
+    }
+
+    function setDisabled(id, valor) {
+      const elemento = document.getElementById(id);
+      if (elemento) elemento.disabled = valor;
+    }
+
+    function setChip(id, estado, textoOk, textoBad) {
+      const elemento = document.getElementById(id);
+      if (!elemento) return;
+
+      elemento.classList.remove('chip-ok', 'chip-bad', 'chip-warn');
+
+      if (estado) {
+        elemento.textContent = textoOk || 'Correcto';
+        elemento.classList.add('chip-ok');
+      } else {
+        elemento.textContent = textoBad || 'No disponible';
+        elemento.classList.add('chip-bad');
+      }
+    }
+
+    function setChipTexto(id, texto, tipo) {
+      const elemento = document.getElementById(id);
+      if (!elemento) return;
+
+      elemento.textContent = texto;
+      elemento.classList.remove('chip-ok', 'chip-bad', 'chip-warn');
+
+      if (tipo === 'ok') elemento.classList.add('chip-ok');
+      else if (tipo === 'bad') elemento.classList.add('chip-bad');
+      else elemento.classList.add('chip-warn');
+    }
+
+    function obtenerSeleccionQuery() {
+      const bpm = document.getElementById('bpm').checked ? 1 : 0;
+      const spo2 = document.getElementById('spo2').checked ? 1 : 0;
+      const temp = document.getElementById('temp').checked ? 1 : 0;
+      const ecg = document.getElementById('ecg').checked ? 1 : 0;
+
+      return `bpm=${bpm}&spo2=${spo2}&temp=${temp}&ecg=${ecg}`;
+    }
+
+    function guardarSeleccion() {
+      fetch(`/set?${obtenerSeleccionQuery()}`)
+        .then(response => response.json())
+        .then(data => {
+          actualizar();
+        })
+        .catch(error => console.log("Error actualizando selección:", error));
+    }
+
+    function comenzarMonitoreo() {
+      fetch(`/start?${obtenerSeleccionQuery()}`)
+        .then(response => response.json())
+        .then(data => {
+          actualizar();
+        })
+        .catch(error => console.log("Error iniciando monitoreo:", error));
+    }
+
+    function detenerMonitoreo() {
+      fetch('/stop')
+        .then(response => response.json())
+        .then(data => {
+          actualizar();
+        })
+        .catch(error => console.log("Error deteniendo monitoreo:", error));
+    }
+
+    function actualizar() {
+      fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+
+          if (data.monitoreoActivo) {
+            setTexto('valorBPM', data.bpm > 0 ? data.bpm : '--');
+            setTexto('valorSpO2', data.spo2 > 0 ? data.spo2 : '--');
+            setTexto('valorTemp', data.temp > 0 ? Number(data.temp).toFixed(2) : '--');
+            setTexto('valorECG', data.ecg > 0 ? data.ecg : '--');
+            setChipTexto('estadoMonitoreo', 'Activo', 'ok');
+          } else {
+            setTexto('valorBPM', '--');
+            setTexto('valorSpO2', '--');
+            setTexto('valorTemp', '--');
+            setTexto('valorECG', '--');
+            setChipTexto('estadoMonitoreo', 'Detenido', 'warn');
+          }
+
+          setChip('estadoMAX', data.maxDisponible, 'Detectado', 'No detectado');
+          setChip('estadoDedo', data.dedoDetectado, 'Detectado', 'Sin dedo');
+          setChip('estadoTMP', data.tmpDisponible, 'Detectado', 'No detectado');
+          setChip('estadoElectrodos', data.electrodosConectados, 'Conectados', 'Desconectados');
+
+          setTexto('modoConexion', data.wifi || '--');
+          setTexto('ssidActual', data.ssid || '--');
+          setTexto('ipLocal', data.ip || '--');
+          setTexto('mdnsLocal', data.mdns || '--');
+
+          setTexto('estadoWiFi', data.wifiDisponible ? 'Conectado' : 'No conectado');
+          setTexto('estadoInternet', data.internetDisponible ? 'Disponible' : 'No disponible');
+
+          setChecked('bpm', data.medirBPM);
+          setChecked('spo2', data.medirSpO2);
+          setChecked('temp', data.medirTemp);
+          setChecked('ecg', data.medirECG);
+
+          setDisabled('bpm', !data.maxDisponible || data.monitoreoActivo);
+          setDisabled('spo2', !data.maxDisponible || data.monitoreoActivo);
+          setDisabled('temp', !data.tmpDisponible || data.monitoreoActivo);
+          setDisabled('ecg', !data.ecgDisponible || data.monitoreoActivo);
+        })
+        .catch(error => {
+          console.log("Error al actualizar datos locales:", error);
+          setTexto('modoConexion', 'Sin respuesta del dispositivo');
+        });
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape") cerrarMenu();
+    });
+
+    actualizar();
+    setInterval(actualizar, 1500);
+  </script>
+</body>
+</html>
