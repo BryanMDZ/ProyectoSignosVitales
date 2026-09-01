@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credenciales WiFi</title>
+
+  <style>
+    :root {
+      --primary: #0f4c75;
+      --primary-dark: #0b354f;
+      --accent: #00a6a6;
+      --bg: #f4f8fb;
+      --card: #ffffff;
+      --soft: #eef6f9;
+      --border: #d9e2ec;
+      --text: #17212b;
+      --muted: #6b7c8f;
+      --danger: #d9534f;
+      --ok: #2e8b57;
+      --warn: #f4a261;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .topbar {
+      height: 60px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .menu-btn {
+      font-size: 28px;
+      cursor: pointer;
+      margin-right: 16px;
+      user-select: none;
+    }
+
+    .topbar-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 0.4px;
+    }
+
+    #menuToggle {
+      display: none;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 260px;
+      height: 100vh;
+      background: white;
+      box-shadow: 2px 0 14px rgba(0,0,0,0.18);
+      z-index: 20;
+      transition: left 0.25s ease;
+      padding-top: 70px;
+    }
+
+    #menuToggle:checked ~ .sidebar {
+      left: 0;
+    }
+
+    .sidebar-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 60px;
+      width: 100%;
+      background: var(--primary-dark);
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      font-weight: bold;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 15px 20px;
+      color: var(--text);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      font-weight: bold;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: var(--soft);
+      color: var(--primary);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 15;
+    }
+
+    #menuToggle:checked ~ .overlay {
+      display: block;
+    }
+
+    main {
+      max-width: 1050px;
+      margin: 22px auto;
+      padding: 0 16px 30px;
+    }
+
+    .page-title {
+      margin-bottom: 18px;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      color: var(--primary);
+      font-size: 26px;
+    }
+
+    .page-title p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .span-6 { grid-column: span 6; }
+    .span-12 { grid-column: span 12; }
+
+    .card-title {
+      margin: 0 0 14px;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 13px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,166,166,0.14);
+    }
+
+    button,
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: var(--primary);
+      color: white;
+      transition: 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    button:hover,
+    .btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+    }
+
+    .btn-light {
+      background: var(--soft);
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .info-list {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .info-label {
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .info-value {
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .warning-box {
+      background: rgba(244,162,97,0.16);
+      border: 1px solid rgba(244,162,97,0.45);
+      color: #8a4a16;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 850px) {
+      .span-6,
+      .span-12 {
+        grid-column: span 12;
+      }
+
+      .info-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <input type="checkbox" id="menuToggle">
+
+  <header class="topbar">
+    <label for="menuToggle" class="menu-btn">☰</label>
+    <div class="topbar-title">BioMonitor Local</div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">Menú local</div>
+    <a class="nav-item" href="/monitor" onclick="cerrarMenu()">Monitoreo</a>
+    <a class="nav-item active" href="/wifi" onclick="cerrarMenu()">Credenciales WiFi</a>
+  </aside>
+
+  <label for="menuToggle" class="overlay"></label>
+
+  <main>
+    <section class="page-title">
+      <h1>Credenciales WiFi</h1>
+      <p>Configuración de red para conexión local y envío de datos a la nube.</p>
+    </section>
+
+    <div class="grid">
+
+      <section class="card span-6">
+        <h2 class="card-title">Agregar o actualizar credenciales</h2>
+
+        <form action="/guardarWiFi" method="POST">
+          <div class="form-group">
+            <label for="ssid">Nombre de red WiFi</label>
+            <input type="text" id="ssid" name="ssid" placeholder="SSID de la red" required>
+          </div>
+
+          <div class="form-group">
+            <label for="pass">Contraseña</label>
+            <input type="password" id="pass" name="pass" placeholder="Contraseña de la red">
+          </div>
+
+          <div class="actions">
+            <button type="submit">Guardar credenciales</button>
+            <a class="btn btn-light" href="/monitor">Volver al monitoreo</a>
+          </div>
+        </form>
+
+        <div class="warning-box">
+          Al guardar nuevas credenciales, el dispositivo se reiniciará para intentar conectarse a la red indicada.
+        </div>
+      </section>
+
+      <section class="card span-6">
+        <h2 class="card-title">Borrar credenciales</h2>
+
+        <p>
+          Esta opción elimina la red guardada. Después del reinicio, el dispositivo podrá iniciar en modo de configuración local.
+        </p>
+
+        <form action="/borrarWiFi" method="POST" onsubmit="return confirm('¿Seguro que deseas borrar las credenciales WiFi guardadas?');">
+          <button class="btn-danger" type="submit">Borrar credenciales guardadas</button>
+        </form>
+
+        <div class="warning-box">
+          Usa esta opción si cambiaste de red, si la contraseña ya no es válida o si deseas volver a configurar el dispositivo desde cero.
+        </div>
+      </section>
+
+      <section class="card span-12">
+        <h2 class="card-title">Estado de conexión de red</h2>
+
+        <div class="info-list">
+          <div class="info-label">Modo</div>
+          <div class="info-value" id="modoConexion">--</div>
+
+          <div class="info-label">Red actual</div>
+          <div class="info-value" id="ssidActual">--</div>
+
+          <div class="info-label">Dirección IP</div>
+          <div class="info-value" id="ipLocal">--</div>
+
+          <div class="info-label">mDNS</div>
+          <div class="info-value" id="mdnsLocal">--</div>
+
+          <div class="info-label">WiFi disponible</div>
+          <div class="info-value" id="wifiDisponible">--</div>
+
+          <div class="info-label">Internet / nube</div>
+          <div class="info-value" id="internetDisponible">--</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    function cerrarMenu() {
+      const menu = document.getElementById('menuToggle');
+      if (menu) menu.checked = false;
+    }
+
+    function setTexto(id, texto) {
+      const elemento = document.getElementById(id);
+      if (elemento) elemento.textContent = texto;
+    }
+
+    function actualizarConexion() {
+      fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+          setTexto('modoConexion', data.wifi || '--');
+          setTexto('ssidActual', data.ssid || '--');
+          setTexto('ipLocal', data.ip || '--');
+          setTexto('mdnsLocal', data.mdns || '--');
+          setTexto('wifiDisponible', data.wifiDisponible ? 'Sí' : 'No');
+          setTexto('internetDisponible', data.internetDisponible ? 'Sí' : 'No');
+        })
+        .catch(error => {
+          console.log("Error consultando estado de conexión:", error);
+          setTexto('modoConexion', 'Sin respuesta del dispositivo');
+        });
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape") cerrarMenu();
+    });
+
+    actualizarConexion();
+    setInterval(actualizarConexion, 2500);
+  </script>
+</body>
+</html>
